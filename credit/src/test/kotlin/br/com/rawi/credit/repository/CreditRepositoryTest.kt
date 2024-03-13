@@ -3,6 +3,7 @@ package br.com.rawi.credit.repository
 import br.com.rawi.credit.model.Address
 import br.com.rawi.credit.model.Credit
 import br.com.rawi.credit.model.Customer
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,6 +33,34 @@ class CreditRepositoryTest {
         credit2 = testEntityManager.persist(buildCredit(customer = customer))
     }
 
+    @Test
+    fun `should find credit by credit code`(){
+        val creditCode1 = UUID.fromString("f47b3b2e-3f3e-4f3e-8f3e-3f3e4f3e4f3e")
+        val creditCode2 = UUID.fromString("a2bc6d16-9bbc-4664-90dc-a20c8c15f4e5")
+        credit1.creditCode = creditCode1
+        credit2.creditCode = creditCode2
+
+        val fakeCredit1: Credit = creditRepository.findByCreditCode(creditCode1)!!
+        val fakeCredit2: Credit = creditRepository.findByCreditCode(creditCode2)!!
+
+        Assertions.assertThat(fakeCredit1).isNotNull
+        Assertions.assertThat(fakeCredit2).isNotNull
+        Assertions.assertThat(fakeCredit1).isSameAs(credit1)
+        Assertions.assertThat(fakeCredit2).isSameAs(credit2)
+
+    }
+
+    @Test
+    fun `should find all credits by customer id`(){
+        val customerId: Long = 1L
+
+        val fakeCredits: List<Credit> = creditRepository.findAllByCustomerId(customerId)
+
+        Assertions.assertThat(fakeCredits).isNotNull
+        Assertions.assertThat(fakeCredits).isNotEmpty
+        Assertions.assertThat(fakeCredits.size).isEqualTo(2)
+        Assertions.assertThat(fakeCredits).contains(credit1, credit2)
+    }
 }
 
 private fun buildCredit(
